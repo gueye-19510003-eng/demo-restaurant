@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Connexion Admin</title>
+    <!-- Chargement de la bibliothèque Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <h2>Espace Administration</h2>
+    <form id="login-form">
+        <input type="email" id="email" placeholder="Email Admin" required><br><br>
+        <input type="password" id="password" placeholder="Mot de passe" required><br><br>
+        <button type="submit">Se connecter</button>
+    </form>
+
+    <script>
+        const SUPABASE_URL = "https://qoqlirshhiawpqlnuqph.supabase.co";
+        const SUPABASE_KEY = "sb_publishable_vcDF1EkjoO_TcnvLYHf-ew_Po9I1SuC";
+        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        document.getElementById('login-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+
+            if (error) {
+                alert("Erreur : " + error.message);
+            } else {
+                alert("Connexion réussie !");
+                // Redirection vers le dashboard admin ou chargement de la gestion
+            }
+        });
+    </script>
+</body>
+</html>
