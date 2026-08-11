@@ -4,7 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Administration - Resto</title>
-    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>    <style>
+    <!-- SDK Supabase v2 via CDN cdnjs (plus stable sur iOS/Safari) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/supabase/2.39.8/supabase.js"></script>
+    <style>
         :root {
             --cream: #f7ead6;
             --black: #141210;
@@ -12,17 +14,17 @@
             --gray: #75706a;
         }
         body {
-            font-family: system-ui, sans-serif;
+            font-family: system-ui, -apple-system, sans-serif;
             background-color: var(--black);
             color: #fff;
             margin: 0;
             padding: 20px;
         }
         .container {
-            max-width: 800px;
+            max-width: 600px;
             margin: 0 auto;
         }
-        h1 { color: var(--cream); text-align: center; }
+        h1 { color: var(--cream); text-align: center; font-size: 24px; }
         .card {
             background: #1e1c19;
             border: 1px solid #332f2b;
@@ -30,14 +32,17 @@
             border-radius: 8px;
             margin-bottom: 20px;
         }
-        input, select, textarea, button {
+        input, textarea, button {
             width: 100%;
-            padding: 10px;
+            padding: 12px;
             margin-top: 8px;
             margin-bottom: 15px;
-            border-radius: 5px;
+            border-radius: 6px;
             border: 1px solid #444;
             box-sizing: border-box;
+            background: #2a2723;
+            color: white;
+            font-size: 15px;
         }
         button {
             background: var(--red);
@@ -46,18 +51,19 @@
             border: none;
             cursor: pointer;
         }
-        button:hover { opacity: 0.9; }
         .product-item {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 12px;
+            padding: 12px 0;
             border-bottom: 1px solid #333;
         }
-        .badge {
-            padding: 4px 8px;
+        .btn-status {
+            padding: 6px 12px;
             border-radius: 4px;
-            font-size: 12px;
+            font-size: 13px;
+            width: auto;
+            margin: 0;
         }
         .bg-success { background: #2e7d32; }
         .bg-danger { background: #c62828; }
@@ -70,34 +76,32 @@
 
     <!-- FORMULAIRE DE CONNEXION -->
     <div id="login-section" class="card">
-        <h2>Connexion Admin</h2>
+        <h2 style="margin-top:0;">Connexion Admin</h2>
         <form id="login-form">
             <label>Email</label>
             <input type="email" id="email" required placeholder="admin@exemple.com">
             <label>Mot de passe</label>
-            <input type="password" id="password" required>
-            <button type="submit">Se connecter</button>
+            <input type="password" id="password" required placeholder="••••••••">
+            <button type="submit" id="btn-submit">Se connecter</button>
         </form>
     </div>
 
-    <!-- TABLEAU DE BORD (Masqué par défaut) -->
+    <!-- TABLEAU DE BORD -->
     <div id="dashboard-section" class="card" style="display: none;">
         <div style="display: flex; justify-content: space-between; align-items: center;">
-            <h2>Gestion du Menu</h2>
+            <h2 style="margin:0;">Gestion du Menu</h2>
             <button id="logout-btn" style="width: auto; padding: 6px 12px; background: var(--gray);">Déconnexion</button>
         </div>
 
-        <!-- Formulaire d'ajout de produit -->
-        <form id="add-product-form" style="margin-top: 20px; border-bottom: 2px solid #333; padding-bottom: 20px;">
+        <form id="add-product-form" style="margin-top: 20px; border-bottom: 1px solid #333; padding-bottom: 20px;">
             <h3>Ajouter un plat</h3>
-            <input type="text" id="p-name" placeholder="Nom du plat (ex: Cheese Burger)" required>
+            <input type="text" id="p-name" placeholder="Nom du plat" required>
             <input type="text" id="p-category" placeholder="Catégorie (ex: Burgers, Boissons)" required>
             <input type="number" id="p-price" placeholder="Prix (ex: 3500)" required>
             <textarea id="p-desc" placeholder="Description / Ingrédients"></textarea>
             <button type="submit" style="background: #2e7d32;">Ajouter au menu</button>
         </form>
 
-        <!-- Liste des produits -->
         <h3>Liste des plats</h3>
         <div id="products-list">Chargement...</div>
     </div>
@@ -106,16 +110,17 @@
 <script>
     const SUPABASE_URL = "https://qoqlirshhiawpqlnuqph.supabase.co";
     const SUPABASE_KEY = "sb_publishable_vcDF1EkjoO_TcnvLYHf-ew_Po9I1SuC";
-    const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    
+    // Initialisation
+    const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
     const loginSection = document.getElementById('login-section');
     const dashboardSection = document.getElementById('dashboard-section');
     const productsList = document.getElementById('products-list');
 
-    // Vérification de la session
     async function checkAuth() {
-        const { data: { user } } = await db.auth.getUser();
-        if (user) {
+        const { data: { session } } = await db.auth.getSession();
+        if (session) {
             loginSection.style.display = 'none';
             dashboardSection.style.display = 'block';
             loadProducts();
@@ -125,48 +130,56 @@
         }
     }
 
-    // Connexion
     document.getElementById('login-form').addEventListener('submit', async (e) => {
         e.preventDefault();
-        const { error } = await db.auth.signInWithPassword({
-            email: document.getElementById('email').value,
-            password: document.getElementById('password').value
-        });
-        if (error) alert("Erreur : " + error.message);
-        else checkAuth();
+        const btn = document.getElementById('btn-submit');
+        btn.innerText = "Connexion en cours...";
+        
+        try {
+            const { data, error } = await db.auth.signInWithPassword({
+                email: document.getElementById('email').value.trim(),
+                password: document.getElementById('password').value
+            });
+
+            if (error) {
+                alert("Erreur d'authentification : " + error.message);
+            } else {
+                checkAuth();
+            }
+        } catch (err) {
+            alert("Erreur réseau : Vérifiez votre connexion ou essayez en mode privé.");
+        } finally {
+            btn.innerText = "Se connecter";
+        }
     });
 
-    // Déconnexion
     document.getElementById('logout-btn').addEventListener('click', async () => {
         await db.auth.signOut();
         checkAuth();
     });
 
-    // Charger les produits
     async function loadProducts() {
         const { data, error } = await db.from('products').select('*').order('created_at', { ascending: false });
-        if (error) { productsList.innerHTML = "Erreur de chargement"; return; }
+        if (error) { productsList.innerHTML = "Erreur de chargement des produits."; return; }
 
         productsList.innerHTML = data.map(item => `
             <div class="product-item">
                 <div>
-                    <strong>${item.name}</strong> (${item.price} FCFA) - <em>${item.category}</em><br>
-                    <small style="color: #aaa;">${item.description || ''}</small>
+                    <strong>${item.name}</strong> (${item.price} FCFA)<br>
+                    <small style="color: #aaa;">${item.category}</small>
                 </div>
-                <button onclick="toggleStatus('${item.id}', ${item.is_available})" style="width: auto; margin: 0;" class="badge ${item.is_available ? 'bg-success' : 'bg-danger'}">
+                <button onclick="toggleStatus('${item.id}', ${item.is_available})" class="btn-status ${item.is_available ? 'bg-success' : 'bg-danger'}">
                     ${item.is_available ? 'Disponible' : 'Rupture'}
                 </button>
             </div>
         `).join('');
     }
 
-    // Basculer la disponibilité
     async function toggleStatus(id, currentStatus) {
         await db.from('products').update({ is_available: !currentStatus }).eq('id', id);
         loadProducts();
     }
 
-    // Ajouter un produit
     document.getElementById('add-product-form').addEventListener('submit', async (e) => {
         e.preventDefault();
         const newProduct = {
