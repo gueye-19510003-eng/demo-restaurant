@@ -3,363 +3,189 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Administration - Démo Restaurant</title>
-    <!-- Polices identiques à votre index.html -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Anton&family=Playfair+Display:ital,wght@0,700;1,700&family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
-    <!-- Supabase JS -->
+    <title>Administration - Resto</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root {
             --cream: #f7ead6;
-            --cream-2: #f1ddc0;
             --black: #141210;
-            --black-2: #1e1c19;
             --red: #db1f2e;
             --gray: #75706a;
-            --line: rgba(20, 18, 16, 0.14);
-            --flag-green: #00853f;
-            --flag-yellow: #fdef42;
         }
-
-        * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
-            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-family: system-ui, sans-serif;
             background-color: var(--black);
-            color: var(--cream);
-            min-height: 100vh;
+            color: #fff;
+            margin: 0;
             padding: 20px;
         }
-
-        /* En-tête */
-        header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            max-width: 1000px;
-            margin: 0 auto 30px auto;
-            padding-bottom: 20px;
-            border-bottom: 2px solid var(--red);
-        }
-        h1, h2, h3 {
-            font-family: 'Anton', sans-serif;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-        header h1 { color: var(--cream); font-size: 2rem; }
-        header h1 span { color: var(--red); }
-
-        .btn-logout {
-            background-color: transparent;
-            border: 2px solid var(--red);
-            color: var(--red);
-            padding: 8px 16px;
-            font-family: 'Anton', sans-serif;
-            cursor: pointer;
-            transition: 0.3s;
-        }
-        .btn-logout:hover {
-            background-color: var(--red);
-            color: var(--cream);
-        }
-
-        /* Conteneur principal */
         .container {
-            max-width: 1000px;
+            max-width: 800px;
             margin: 0 auto;
         }
-
-        /* Formulaire de Login */
-        .login-card {
-            background-color: var(--black-2);
-            border: 1px solid var(--line);
-            padding: 40px;
-            max-width: 400px;
-            margin: 100px auto;
+        h1 { color: var(--cream); text-align: center; }
+        .card {
+            background: #1e1c19;
+            border: 1px solid #332f2b;
+            padding: 20px;
             border-radius: 8px;
-            text-align: center;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-        }
-        .login-card h2 { margin-bottom: 20px; color: var(--cream); }
-
-        /* Formulaires et Inputs */
-        input, select, textarea {
-            width: 100%;
-            padding: 12px;
-            margin-bottom: 15px;
-            background-color: var(--black);
-            border: 1px solid rgba(247, 234, 214, 0.2);
-            color: var(--cream);
-            font-family: inherit;
-            border-radius: 4px;
-        }
-        input:focus, select:focus, textarea:focus {
-            outline: none;
-            border-color: var(--red);
-        }
-
-        .btn-primary {
-            background-color: var(--red);
-            color: var(--cream);
-            border: none;
-            padding: 12px 24px;
-            font-family: 'Anton', sans-serif;
-            font-size: 1rem;
-            cursor: pointer;
-            width: 100%;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            transition: 0.2s;
-        }
-        .btn-primary:hover {
-            background-color: #b81724;
-        }
-
-        /* Dashboard Admin */
-        .admin-grid {
-            display: grid;
-            grid-template-columns: 1fr 2fr;
-            gap: 30px;
-        }
-        @media (max-width: 768px) {
-            .admin-grid { grid-template-columns: 1fr; }
-        }
-
-        .panel {
-            background-color: var(--black-2);
-            padding: 25px;
-            border-radius: 8px;
-            border: 1px solid rgba(247, 234, 214, 0.1);
-        }
-
-        .panel h2 {
-            color: var(--cream-2);
             margin-bottom: 20px;
-            font-size: 1.5rem;
-            border-bottom: 1px solid rgba(247, 234, 214, 0.1);
-            padding-bottom: 10px;
         }
-
-        /* Cartes de produit */
-        .product-item {
-            background-color: var(--black);
-            border: 1px solid rgba(247, 234, 214, 0.15);
-            padding: 15px;
+        input, select, textarea, button {
+            width: 100%;
+            padding: 10px;
+            margin-top: 8px;
             margin-bottom: 15px;
-            border-radius: 6px;
+            border-radius: 5px;
+            border: 1px solid #444;
+            box-sizing: border-box;
+        }
+        button {
+            background: var(--red);
+            color: white;
+            font-weight: bold;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover { opacity: 0.9; }
+        .product-item {
             display: flex;
             justify-content: space-between;
             align-items: center;
+            padding: 12px;
+            border-bottom: 1px solid #333;
         }
-        .product-info h4 { font-family: 'Anton', sans-serif; color: var(--cream); font-size: 1.2rem; }
-        .product-info p { color: var(--gray); font-size: 0.9rem; margin-top: 4px; }
-        .product-info .price { color: var(--flag-yellow); font-weight: bold; margin-top: 5px; }
-
-        .status-badge {
-            display: inline-block;
-            padding: 3px 8px;
-            font-size: 0.75rem;
-            font-weight: bold;
-            border-radius: 3px;
-            text-transform: uppercase;
-            margin-left: 8px;
-        }
-        .status-badge.available { background-color: var(--flag-green); color: #fff; }
-        .status-badge.unavailable { background-color: var(--red); color: #fff; }
-
-        .actions { display: flex; gap: 8px; }
-        .btn-sm {
-            padding: 6px 12px;
-            font-size: 0.8rem;
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            font-weight: bold;
-            cursor: pointer;
-            border: none;
+        .badge {
+            padding: 4px 8px;
             border-radius: 4px;
+            font-size: 12px;
         }
-        .btn-toggle { background-color: var(--cream-2); color: var(--black); }
-        .btn-delete { background-color: #331010; color: var(--red); border: 1px solid var(--red); }
-
-        .hidden { display: none !important; }
+        .bg-success { background: #2e7d32; }
+        .bg-danger { background: #c62828; }
     </style>
 </head>
 <body>
 
-    <!-- 1. ÉCRAN DE CONNEXION -->
-    <div id="login-section" class="login-card">
-        <h2>Espace <span>Admin</span></h2>
+<div class="container">
+    <h1>Espace Administration</h1>
+
+    <!-- FORMULAIRE DE CONNEXION -->
+    <div id="login-section" class="card">
+        <h2>Connexion Admin</h2>
         <form id="login-form">
-            <input type="email" id="email" placeholder="Adresse Email" required>
-            <input type="password" id="password" placeholder="Mot de passe" required>
-            <button type="submit" class="btn-primary">Se connecter</button>
+            <label>Email</label>
+            <input type="email" id="email" required placeholder="admin@exemple.com">
+            <label>Mot de passe</label>
+            <input type="password" id="password" required>
+            <button type="submit">Se connecter</button>
         </form>
     </div>
 
-    <!-- 2. TABLEAU DE BORD ADMIN (MASQUÉ PAR DÉFAUT) -->
-    <div id="dashboard-section" class="container hidden">
-        <header>
-            <h1>VOTRE <span>RESTAURANT</span> - ADMIN</h1>
-            <button class="btn-logout" id="logout-btn">Déconnexion</button>
-        </header>
-
-        <div class="admin-grid">
-            <!-- Formulaire d'ajout / modification de produit -->
-            <div class="panel">
-                <h2>Ajouter un Produit</h2>
-                <form id="product-form">
-                    <label style="font-size: 0.85rem; color: var(--cream-2);">Catégorie</label>
-                    <select id="prod-category" required>
-                        <option value="Burgers">Burgers</option>
-                        <option value="Accompagnements">Accompagnements</option>
-                        <option value="Boissons">Boissons</option>
-                        <option value="Desserts">Desserts</option>
-                    </select>
-
-                    <label style="font-size: 0.85rem; color: var(--cream-2);">Nom du produit</label>
-                    <input type="text" id="prod-name" placeholder="ex: Smash Burger Double" required>
-
-                    <label style="font-size: 0.85rem; color: var(--cream-2);">Caractéristiques / Description</label>
-                    <textarea id="prod-desc" rows="3" placeholder="Ingrédients, portion, allergènes..."></textarea>
-
-                    <label style="font-size: 0.85rem; color: var(--cream-2);">Prix (FCFA)</label>
-                    <input type="number" id="prod-price" placeholder="ex: 3500" required>
-
-                    <button type="submit" class="btn-primary">+ Enregistrer le Produit</button>
-                </form>
-            </div>
-
-            <!-- Liste des produits existants -->
-            <div class="panel">
-                <h2>Menu Actuel</h2>
-                <div id="products-list">
-                    <p style="color: var(--gray);">Chargement des produits...</p>
-                </div>
-            </div>
+    <!-- TABLEAU DE BORD (Masqué par défaut) -->
+    <div id="dashboard-section" class="card" style="display: none;">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <h2>Gestion du Menu</h2>
+            <button id="logout-btn" style="width: auto; padding: 6px 12px; background: var(--gray);">Déconnexion</button>
         </div>
+
+        <!-- Formulaire d'ajout de produit -->
+        <form id="add-product-form" style="margin-top: 20px; border-bottom: 2px solid #333; padding-bottom: 20px;">
+            <h3>Ajouter un plat</h3>
+            <input type="text" id="p-name" placeholder="Nom du plat (ex: Cheese Burger)" required>
+            <input type="text" id="p-category" placeholder="Catégorie (ex: Burgers, Boissons)" required>
+            <input type="number" id="p-price" placeholder="Prix (ex: 3500)" required>
+            <textarea id="p-desc" placeholder="Description / Ingrédients"></textarea>
+            <button type="submit" style="background: #2e7d32;">Ajouter au menu</button>
+        </form>
+
+        <!-- Liste des produits -->
+        <h3>Liste des plats</h3>
+        <div id="products-list">Chargement...</div>
     </div>
+</div>
 
-    <script>
-        // CONFIGURATION SUPABASE
-        const SUPABASE_URL = "https://qoqlirshhiawpqlnuqph.supabase.co";
-        const SUPABASE_KEY = "sb_publishable_vcDF1EkjoO_TcnvLYHf-ew_Po9I1SuC";
-        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+<script>
+    const SUPABASE_URL = "https://qoqlirshhiawpqlnuqph.supabase.co";
+    const SUPABASE_KEY = "sb_publishable_vcDF1EkjoO_TcnvLYHf-ew_Po9I1SuC";
+    const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-        // ÉLÉMENTS DOM
-        const loginSection = document.getElementById('login-section');
-        const dashboardSection = document.getElementById('dashboard-section');
-        const loginForm = document.getElementById('login-form');
-        const logoutBtn = document.getElementById('logout-btn');
-        const productForm = document.getElementById('product-form');
-        const productsList = document.getElementById('products-list');
+    const loginSection = document.getElementById('login-section');
+    const dashboardSection = document.getElementById('dashboard-section');
+    const productsList = document.getElementById('products-list');
 
-        // VÉRIFIER LA SESSION AU CHARGEMENT
-        async function checkSession() {
-            const { data: { user } } = await supabase.auth.getUser();
-            if (user) {
-                loginSection.classList.add('hidden');
-                dashboardSection.classList.remove('hidden');
-                loadProducts();
-            } else {
-                loginSection.classList.remove('hidden');
-                dashboardSection.classList.add('hidden');
-            }
-        }
-        checkSession();
-
-        // CONNEXION ADMIN
-        loginForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-
-            const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-
-            if (error) {
-                alert("Erreur de connexion : " + error.message);
-            } else {
-                checkSession();
-            }
-        });
-
-        // DÉCONNEXION
-        logoutBtn.addEventListener('click', async () => {
-            await supabase.auth.signOut();
-            checkSession();
-        });
-
-        // CHARGER LES PRODUITS
-        async function loadProducts() {
-            const { data: products, error } = await supabase
-                .from('products')
-                .select('*')
-                .order('created_at', { ascending: false });
-
-            if (error) {
-                productsList.innerHTML = `<p style="color: var(--red);">Erreur lors du chargement : ${error.message}</p>`;
-                return;
-            }
-
-            if (products.length === 0) {
-                productsList.innerHTML = `<p style="color: var(--gray);">Aucun produit enregistré pour le moment.</p>`;
-                return;
-            }
-
-            productsList.innerHTML = products.map(p => `
-                <div class="product-item">
-                    <div class="product-info">
-                        <h4>
-                            ${p.name} 
-                            <span class="status-badge ${p.is_available ? 'available' : 'unavailable'}">
-                                ${p.is_available ? 'Disponible' : 'Rupture'}
-                            </span>
-                        </h4>
-                        <p>${p.description || 'Aucune caractéristique spécifiée.'}</p>
-                        <div class="price">${p.price} FCFA <span style="color: var(--gray); font-weight: normal;">(${p.category})</span></div>
-                    </div>
-                    <div class="actions">
-                        <button class="btn-sm btn-toggle" onclick="toggleStatus('${p.id}', ${p.is_available})">
-                            ${p.is_available ? 'Masquer' : 'Afficher'}
-                        </button>
-                        <button class="btn-sm btn-delete" onclick="deleteProduct('${p.id}')">✕</button>
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        // AJOUTER UN PRODUIT
-        productForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const category = document.getElementById('prod-category').value;
-            const name = document.getElementById('prod-name').value;
-            const description = document.getElementById('prod-desc').value;
-            const price = parseFloat(document.getElementById('prod-price').value);
-
-            const { error } = await supabase.from('products').insert([
-                { category, name, description, price, is_available: true }
-            ]);
-
-            if (error) {
-                alert("Erreur lors de l'ajout : " + error.message);
-            } else {
-                productForm.reset();
-                loadProducts();
-            }
-        });
-
-        // CHANGER LA DISPONIBILITÉ D'UN PRODUIT
-        window.toggleStatus = async (id, currentStatus) => {
-            await supabase.from('products').update({ is_available: !currentStatus }).eq('id', id);
+    // Vérification de la session
+    async function checkAuth() {
+        const { data: { user } } = await db.auth.getUser();
+        if (user) {
+            loginSection.style.display = 'none';
+            dashboardSection.style.display = 'block';
             loadProducts();
-        };
+        } else {
+            loginSection.style.display = 'block';
+            dashboardSection.style.display = 'none';
+        }
+    }
 
-        // SUPPRIMER UN PRODUIT
-        window.deleteProduct = async (id) => {
-            if (confirm("Voulez-vous vraiment supprimer ce produit ?")) {
-                await supabase.from('products').delete().eq('id', id);
-                loadProducts();
-            }
+    // Connexion
+    document.getElementById('login-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const { error } = await db.auth.signInWithPassword({
+            email: document.getElementById('email').value,
+            password: document.getElementById('password').value
+        });
+        if (error) alert("Erreur : " + error.message);
+        else checkAuth();
+    });
+
+    // Déconnexion
+    document.getElementById('logout-btn').addEventListener('click', async () => {
+        await db.auth.signOut();
+        checkAuth();
+    });
+
+    // Charger les produits
+    async function loadProducts() {
+        const { data, error } = await db.from('products').select('*').order('created_at', { ascending: false });
+        if (error) { productsList.innerHTML = "Erreur de chargement"; return; }
+
+        productsList.innerHTML = data.map(item => `
+            <div class="product-item">
+                <div>
+                    <strong>${item.name}</strong> (${item.price} FCFA) - <em>${item.category}</em><br>
+                    <small style="color: #aaa;">${item.description || ''}</small>
+                </div>
+                <button onclick="toggleStatus('${item.id}', ${item.is_available})" style="width: auto; margin: 0;" class="badge ${item.is_available ? 'bg-success' : 'bg-danger'}">
+                    ${item.is_available ? 'Disponible' : 'Rupture'}
+                </button>
+            </div>
+        `).join('');
+    }
+
+    // Basculer la disponibilité
+    async function toggleStatus(id, currentStatus) {
+        await db.from('products').update({ is_available: !currentStatus }).eq('id', id);
+        loadProducts();
+    }
+
+    // Ajouter un produit
+    document.getElementById('add-product-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const newProduct = {
+            name: document.getElementById('p-name').value,
+            category: document.getElementById('p-category').value,
+            price: parseFloat(document.getElementById('p-price').value),
+            description: document.getElementById('p-desc').value,
+            is_available: true
         };
-    </script>
+        const { error } = await db.from('products').insert([newProduct]);
+        if (error) alert("Erreur d'ajout : " + error.message);
+        else {
+            document.getElementById('add-product-form').reset();
+            loadProducts();
+        }
+    });
+
+    checkAuth();
+</script>
 </body>
 </html>
