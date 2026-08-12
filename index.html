@@ -131,8 +131,7 @@ async function loadMenu(){
   const { data, error } = await sb
     .from('products')
     .select('*')
-    .eq('is_available', true)
-    .order('sort_order', { ascending: true });
+
 
   if(error){
     document.getElementById('menu-grid').innerHTML =
