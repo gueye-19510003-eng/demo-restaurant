@@ -217,8 +217,9 @@ document.getElementById('send-btn').addEventListener('click', ()=>{
   msg += `%0ATotal : ${fmt(total)}`;
   window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${msg}`, '_blank');
 });
-
-loadMenu();
+const SUPABASE_URL = "https://qoqulrshhiawpqlnuqph.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_vcDFlEkjoO_TcnvLYHf-ew_Po9IiSuC";
+const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);loadMenu();
 </script>
 
 </body>
