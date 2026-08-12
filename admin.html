@@ -225,8 +225,9 @@ document.getElementById('add-btn').addEventListener('click', async ()=>{
   document.getElementById('new-description').value = '';
   loadItems();
 });
-
-checkSession();
+const SUPABASE_URL = "https://qoqulrshhiawpqlnuqph.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_vcDFlEkjoO_TcnvLYHf-ew_Po9IiSuC";
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);checkSession();
 </script>
 
 </body>
